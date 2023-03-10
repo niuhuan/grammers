@@ -314,7 +314,8 @@ impl Client {
     }
 
     async fn connect_sender(&self, dc_id: i32) -> Result<Arc<FileDownloader>, InvocationError> {
-        let mut mutex = self.0.downloader_map.write().await;
+        let mut _mutex = self.0.downloader_map.write().await;
+        drop(_mutex);
         debug!("Connecting new datacenter {}", dc_id);
         match connect_sender(dc_id, &self.0.config).await {
             Ok((new_sender, new_tx)) => {
@@ -340,7 +341,7 @@ impl Client {
                 )
                 .await?;
 
-                mutex.insert(dc_id, new_downloader.clone());
+                // mutex.insert(dc_id, new_downloader.clone());
                 Ok(new_downloader.clone())
             }
             Err(e) => panic!("Cannot obtain new sender to datacenter {}", e),
